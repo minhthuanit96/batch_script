@@ -64,6 +64,7 @@ Cscript "%folderdriver%\Prndrvr.vbs" -a -m %printername% -i %folderdriver%\BRPRM
 Cscript "%folderdriver%\Prnmngr.vbs" -a -p "Brother MFC-L2701DW" -m %printername% -r IP_%ipprinter%
 rd C:\temp /s /q
 endlocal
+call :timeout
 goto :EOF
 REM =========================================================================================================================================
 echo The process is still active....
@@ -84,6 +85,7 @@ Cscript "%folderdriver%\Prndrvr.vbs" -a -m %printername% -i %folderdriver%\BROHL
 Cscript "%folderdriver%\Prnmngr.vbs" -a -p "Brother HL-L2360D series" -m %printername% -r IP_%ipprinter%
 rd C:\temp /s /q
 endlocal
+call :timeout
 goto :EOF
 REM =========================================================================================================================================
 echo The process is still active....
@@ -104,6 +106,7 @@ Cscript "%folderdriver%\Prndrvr.vbs" -a -m %printername% -i %folderdriver%\oemse
 Cscript "%folderdriver%\Prnmngr.vbs" -a -p "Gestetner MP 5054 PCL 6" -m %printername% -r IP_%ipprinter%
 rd C:\temp /s /q
 endlocal
+call :timeout
 goto :EOF
 REM =========================================================================================================================================
 echo The process is still active....
@@ -124,7 +127,11 @@ Cscript "%folderdriver%\Prndrvr.vbs" -a -m %printername% -i %folderdriver%\BROCH
 Cscript "%folderdriver%\Prnmngr.vbs" -a -p "Brother HL-L8350CDW series" -m %printername% -r IP_%ipprinter%
 rd C:\temp /s /q
 endlocal
+call :timeout
 goto :EOF
 REM =========================================================================================================================================
-rem exit
-rem exit
+:timeout
+cls
+echo Installation Completed
+timeout /t 2 /nobreak>nul
+exit
