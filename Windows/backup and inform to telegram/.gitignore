@@ -1,5 +1,18 @@
-SOURCE_PATH=C:\Backup\Backup for Unifi controller
-DESTINATION_PATH=Z:\veeam-backup\Backup for Unifi controller
-BOT_TOKEN=7114209452:AAF08n1fg7CdEIZqsiyoM4j1uvYbGnGXTAY
-CHAT_ID=-1002147532655
-MESSAGE_THREAD_ID=25
+# Ignore the environment variables file
+configure.env
+# Ignore Node.js dependencies
+node_modules/
+# Ignore log files
+*.log
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+# Ignore IDE-specific files
+.vscode/
+.idea/
+*.swp
+# Ignore compiled files
+*.exe
+*.dll
+*.so
+*.dylib
