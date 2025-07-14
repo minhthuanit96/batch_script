@@ -1,4 +1,4 @@
-# 🧰 Personal Utility Scripts by [Your Name]
+# 🧰 Personal Utility Scripts by THUAN NGUYEN
 
 Chào mừng đến với kho lưu trữ các script tự phát triển nhằm phục vụ mục đích **công việc cá nhân**, **quản trị hệ thống**, và **tự động hoá quy trình** trên các nền tảng **Windows** và **Ubuntu/Linux**.
 
