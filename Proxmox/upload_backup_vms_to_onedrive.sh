@@ -132,7 +132,7 @@ ensure_remote_folder_exists() {
 # ========================
 # 🚀 Bắt đầu backup
 # ========================
-ENV_FILE="backup.env"
+ENV_FILE="upload.env"
 load_env "$ENV_FILE"
 check_required_vars
 
