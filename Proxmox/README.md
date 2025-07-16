@@ -132,6 +132,60 @@ rclone copy /var/lib/vz/dump/testfile.zst onedrive:ProxmoxBackups/Test
 ```
 
 ---
+## 🧩 Xử lý backup VM lớn hơn 100GB (OneDrive giới hạn)
+
+### 🔺 Vấn đề:
+OneDrive giới hạn **kích thước tối đa của 1 file là 100GB**. Nếu file backup `.vma.zst` của bạn vượt quá giới hạn này, quá trình upload sẽ **thất bại**.
+
+---
+
+### ✅ Giải pháp: Tự động chia nhỏ file bằng `split`
+
+Script sẽ tự kiểm tra nếu file > 95GB (an toàn dưới ngưỡng 100GB), và **tự động chia nhỏ** thành các phần `.part_*` trước khi upload.
+
+**Cách chia nhỏ (được thực hiện tự động):**
+```bash
+split -b 95G vzdump-qemu-101-2025_07_16.vma.zst vzdump-qemu-101-2025_07_16.vma.zst.part_
+```
+
+Sau đó upload từng phần `*.part_*` lên remote.
+
+---
+
+### 📦 Cách khôi phục file sau khi download từ remote
+
+1. Tải về tất cả các phần `.part_*` của file backup
+2. Dùng lệnh `cat` để ghép lại:
+   ```bash
+   cat vzdump-qemu-101-2025_07_16.vma.zst.part_* > vzdump-qemu-101-2025_07_16.vma.zst
+   ```
+
+> **Lưu ý:** thứ tự tên phần phải đúng thứ tự tạo (vd: part_aa, part_ab, part_ac,...)
+
+3. Sau khi ghép lại, bạn có thể sử dụng file `.vma.zst` như bình thường để restore VM.
+
+---
+
+### 🔁 Tự động bỏ qua file gốc khi đã chia nhỏ
+
+Sau khi chia nhỏ, script sẽ tự động:
+- ✅ Upload các phần `.part_*`
+- ⛔ Không upload file `.vma.zst` gốc nữa (tránh lỗi giới hạn)
+
+---
+
+### 🔐 Tùy chỉnh ngưỡng chia nhỏ
+
+Biến sau trong script xác định kích thước tối đa:
+```bash
+MAX_SIZE_BYTES=$((95 * 1024 * 1024 * 1024))  # 95GB
+```
+
+Bạn có thể điều chỉnh giá trị này để phù hợp với giới hạn của cloud bạn sử dụng.
+
+---
+
+Nếu bạn dùng dịch vụ không giới hạn (như Google Workspace, SFTP...), bạn có thể **tắt chức năng split** bằng cách xoá hoặc comment khối mã đó trong script.
 
 ## 💡 Gợi ý mở rộng
 

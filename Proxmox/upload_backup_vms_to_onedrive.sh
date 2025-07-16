@@ -53,7 +53,7 @@ send_telegram() {
 }
 
 # ========================
-# 😀 Chuyển shortcode emoji sang unicode (Telegram)
+# 😀 Chuyển emoji cho Telegram
 # ========================
 translate_emojis() {
     local input="$1"
@@ -118,7 +118,6 @@ file_exists_on_remote() {
 ensure_remote_folder_exists() {
     local remote_subfolder="$1"
     if ! rclone lsd "$REMOTE_NAME:$remote_subfolder" > /dev/null 2>&1; then
-        echo "🛠️ Đang tạo thư mục $REMOTE_NAME:$remote_subfolder..."
         rclone mkdir "$REMOTE_NAME:$remote_subfolder"
         if [[ $? -eq 0 ]]; then
             notify_all ":open_file_folder: Đã tạo thư mục $remote_subfolder trên remote $REMOTE_NAME."
@@ -130,7 +129,7 @@ ensure_remote_folder_exists() {
 }
 
 # ========================
-# 🚀 Bắt đầu backup
+# 🚀 Bắt đầu
 # ========================
 ENV_FILE="upload.env"
 load_env "$ENV_FILE"
@@ -146,10 +145,8 @@ notify_all ":rocket: Bắt đầu kiểm tra và sao lưu backup Proxmox lên $R
 # 🔁 Duyệt từng VM
 for vmid in $(ls "$BACKUP_DIR" | grep -oP '^vzdump-qemu-\K[0-9]+' | sort -u); do
     notify_all ":mag: Kiểm tra backup cho VM $vmid..."
-
     backups=($(ls -t "$BACKUP_DIR"/vzdump-qemu-"$vmid"-*.vma.zst 2>/dev/null))
     backup_count=${#backups[@]}
-
     if [[ $backup_count -eq 0 ]]; then
         notify_all ":x: Không tìm thấy backup cho VM $vmid."
         continue
@@ -158,24 +155,16 @@ for vmid in $(ls "$BACKUP_DIR" | grep -oP '^vzdump-qemu-\K[0-9]+' | sort -u); do
     remote_vm_folder="$REMOTE_FOLDER/VM$vmid"
     ensure_remote_folder_exists "$remote_vm_folder"
 
-    # 🗑️ Xoá file cũ nếu đã có trên remote
+    # 🗑️ Xoá bản cũ (nếu có > 2)
     if (( backup_count > 2 )); then
-        deleted_files=()
         for ((i=2; i<backup_count; i++)); do
             file="${backups[$i]}"
             filename="${file##*/}"
-
             if file_exists_on_remote "$filename" "$remote_vm_folder"; then
                 rm -f "$file"
-                deleted_files+=("$filename")
-            else
-                notify_all ":warning: Không xoá $filename vì chưa thấy trên remote"
+                notify_all ":wastebasket: Đã xoá $filename"
             fi
         done
-
-        if (( ${#deleted_files[@]} > 0 )); then
-            notify_all ":wastebasket: Đã xoá backup cũ cho VM $vmid: ${deleted_files[*]}"
-        fi
     fi
 
     # ⬆️ Upload 2 bản mới nhất
@@ -183,12 +172,39 @@ for vmid in $(ls "$BACKUP_DIR" | grep -oP '^vzdump-qemu-\K[0-9]+' | sort -u); do
         file="${backups[$i]}"
         filename="${file##*/}"
 
-        notify_all ":arrow_up: Chuẩn bị upload $filename lên $REMOTE_NAME:$remote_vm_folder..."
+        notify_all ":arrow_up: Chuẩn bị upload $filename..."
 
+        # ✅ Kiểm tra dung lượng > 95GB
+        MAX_SIZE_BYTES=$((95 * 1024 * 1024 * 1024))
+        if [[ $(stat -c%s "$file") -gt $MAX_SIZE_BYTES ]]; then
+            notify_all ":warning: File $filename lớn hơn 95GB. Đang chia nhỏ bằng split..."
+            split -b 95G "$file" "${file}.part_"
+            if [[ $? -ne 0 ]]; then
+                notify_all ":x: Lỗi khi chia nhỏ $filename."
+                continue
+            fi
+
+            for part in "${file}.part_"*; do
+                partname="${part##*/}"
+                if file_exists_on_remote "$partname" "$remote_vm_folder"; then
+                    notify_all ":warning: $partname đã tồn tại. Bỏ qua upload."
+                else
+                    rclone copy "$part" "$REMOTE_NAME:$remote_vm_folder"
+                    if [[ $? -eq 0 ]]; then
+                        notify_all ":white_check_mark: Đã upload thành công phần $partname."
+                    else
+                        notify_all ":x: Lỗi khi upload phần $partname."
+                    fi
+                fi
+            done
+            continue
+        fi
+
+        # ✅ Nếu file nhỏ hơn 95GB thì upload bình thường
         if file_exists_on_remote "$filename" "$remote_vm_folder"; then
             notify_all ":warning: $filename đã tồn tại. Bỏ qua upload."
         else
-            rclone copy "$file" "$REMOTE_NAME:$remote_vm_folder" --progress
+            rclone copy "$file" "$REMOTE_NAME:$remote_vm_folder"
             if [[ $? -eq 0 ]]; then
                 notify_all ":white_check_mark: Đã sao lưu $filename thành công."
             else
