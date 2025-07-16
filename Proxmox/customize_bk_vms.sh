@@ -3,15 +3,17 @@
 # ============================
 # 📂 Load configuration from .env
 # ============================
-ENV_FILE="/root/scripts/backup-config.env"
+ENV_FILE="/root/script-bk/backup-config.env"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "❌ Config file not found: $ENV_FILE"
   exit 1
 fi
 
-export $(grep -v '^#' "$ENV_FILE" | xargs)
-
+#export $(grep -v '^#' "$ENV_FILE" | xargs)
+set -a
+source "$ENV_FILE"
+set +a
 # ============================
 # 📦 Run vzdump with retention
 # ============================
@@ -34,11 +36,11 @@ else
     STATUS="❌ Backup FAILED"
 fi
 
-TELEGRAM_MESSAGE="🔔 *Proxmox Backup Report*\\n\
-🕒 Time: $TIMESTAMP\\n\
-📦 VMs: $VM_LIST\\n\
-💾 Storage: $STORAGE\\n\
-⚙️ Mode: $BACKUP_MODE\\n\
+TELEGRAM_MESSAGE="🔔 *Proxmox Backup Report*
+🕒 Time: $TIMESTAMP
+📦 VMs: $VM_LIST
+💾 Storage: $STORAGE
+⚙️ Mode: $BACKUP_MODE
 📄 Status: $STATUS"
 
 # ============================
