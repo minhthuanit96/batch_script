@@ -15,7 +15,7 @@ source "$ENV_FILE"
 set +a
 
 # ============================
-# check quantity logfile and remove older file
+# check quantity logfile and remove older logfile
 # ============================
 
 ls -1t "$LOG_DIR/$LOG_BASENAME-"*.log 2>/dev/null | tail -n +$((LOG_RETAIN + 1)) | xargs -r rm --
@@ -66,6 +66,7 @@ TELEGRAM_MESSAGE="🔔 *Proxmox Backup Report*
 # ============================
 # 📤 Send to Telegram
 # ============================
+
 curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
     -d chat_id="$TELEGRAM_CHAT_ID" \
     -d message_thread_id="$TELEGRAM_THREAD_ID" \
@@ -75,6 +76,7 @@ curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
 # ============================
 # 📤 Send to Discord
 # ============================
+
 DISCORD_MESSAGE="**Proxmox Backup Report**\\n\
 Time: $TIMESTAMP\\n\
 VMs: $VM_LIST\\n\
