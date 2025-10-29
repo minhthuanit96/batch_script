@@ -5,12 +5,17 @@ set -e
 
 # --- Configuration ---
 # Load environment variables from .env file
-if [ -f .env ]; then
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)"
+ENV_FILE="$SCRIPT_DIR/.env"
+
+# --- Configuration ---
+if [[ -f "$ENV_FILE" ]]; then
     set -a
-    source .env
+    # shellcheck source=/dev/null
+    source "$ENV_FILE"
     set +a
 else
-    echo ".env file not found!"
+    echo ".env file not found at $ENV_FILE"
     exit 1
 fi
 
@@ -86,7 +91,7 @@ run_backup() {
 
     if [ -z "$changes" ]; then
         log "No new backups found in BACKUP_DIR. Skipping."
-        # send_telegram_message "ℹ️ No new backups to upload today."
+        send_telegram_message "ℹ️ No new backups to upload today."
         return
     fi
 
