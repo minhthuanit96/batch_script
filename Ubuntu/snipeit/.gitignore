@@ -1,0 +1,35 @@
+# =============================================================================
+# Snipe-IT Installer – .gitignore
+# =============================================================================
+
+# ── Sensitive configuration (contains DB credentials) ────────────────────────
+snipeit.conf
+
+# ── Environment files ────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── OS / Editor artifacts ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.iml
+
+# ── Logs and temp files ──────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak
+*.bak.*
+
+# ── Private keys and certificates ────────────────────────────────────────────
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
