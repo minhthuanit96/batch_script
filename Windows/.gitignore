@@ -1,0 +1,18 @@
+# Environment files containing sensitive configurations
+*.env
+!*.env.example
+
+# Temporary and Log files
+*.log
+*.tmp
+temp/
+C:\temp\
+
+# Windows thumbnails and desktop configuration
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# IDE configurations
+.vscode/
+.idea/
